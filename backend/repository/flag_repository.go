@@ -64,3 +64,55 @@ func GetAllFlags() ([]models.FeatureFlag, error) {
 
 	return flags, nil
 }
+
+func GetFlagByID(id int) (models.FeatureFlag, error) {
+
+	query := "SELECT * FROM feature_flags WHERE id=$1"
+
+	var flag models.FeatureFlag
+
+	err := config.DB.QueryRow(context.Background(), query, id).Scan(
+		&flag.ID,
+		&flag.Name,
+		&flag.Enabled,
+		&flag.Environment,
+		&flag.RolloutPercentage,
+		&flag.Rules,
+		&flag.KillSwitch,
+		&flag.CreatedAt,
+	)
+
+	return flag, err
+}
+
+func DeleteFlag(id int) error {
+
+	query := "DELETE FROM feature_flags WHERE id=$1"
+
+	_, err := config.DB.Exec(context.Background(), query, id)
+
+	return err
+}
+
+func UpdateFlag(id int, flag models.FeatureFlag) error {
+
+	query := `
+	UPDATE feature_flags
+	SET name=$1, enabled=$2, environment=$3, rollout_percentage=$4, rules=$5, kill_switch=$6
+	WHERE id=$7
+	`
+
+	_, err := config.DB.Exec(
+		context.Background(),
+		query,
+		flag.Name,
+		flag.Enabled,
+		flag.Environment,
+		flag.RolloutPercentage,
+		flag.Rules,
+		flag.KillSwitch,
+		id,
+	)
+
+	return err
+}

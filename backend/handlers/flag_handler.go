@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"feature-flag/models"
 	"feature-flag/services"
@@ -38,4 +39,74 @@ func GetFlags(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, flags)
+}
+
+func GetFlagByID(c *gin.Context) {
+
+	idParam := c.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	flag, err := services.GetFeatureFlagByID(id)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Flag not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, flag)
+}
+
+func DeleteFlag(c *gin.Context) {
+
+	idParam := c.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	err = services.DeleteFeatureFlag(id)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete flag"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Flag deleted successfully"})
+}
+
+func UpdateFlag(c *gin.Context) {
+
+	idParam := c.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	var flag models.FeatureFlag
+
+	if err := c.ShouldBindJSON(&flag); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	err = services.UpdateFeatureFlag(id, flag)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update flag"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Flag updated successfully"})
 }
