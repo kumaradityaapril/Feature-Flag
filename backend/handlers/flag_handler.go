@@ -110,3 +110,24 @@ func UpdateFlag(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Flag updated successfully"})
 }
+
+func EvaluateFlag(c *gin.Context) {
+
+	var req models.EvaluationRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	result, err := services.EvaluateFlag(req.FlagName, req.Environment)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Flag not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.EvaluationResponse{
+		Enabled: result,
+	})
+}

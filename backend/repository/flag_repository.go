@@ -116,3 +116,23 @@ func UpdateFlag(id int, flag models.FeatureFlag) error {
 
 	return err
 }
+
+func GetFlagByName(name string) (models.FeatureFlag, error) {
+
+	query := "SELECT * FROM feature_flags WHERE name=$1"
+
+	var flag models.FeatureFlag
+
+	err := config.DB.QueryRow(context.Background(), query, name).Scan(
+		&flag.ID,
+		&flag.Name,
+		&flag.Enabled,
+		&flag.Environment,
+		&flag.RolloutPercentage,
+		&flag.Rules,
+		&flag.KillSwitch,
+		&flag.CreatedAt,
+	)
+
+	return flag, err
+}

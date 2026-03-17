@@ -24,3 +24,29 @@ func DeleteFeatureFlag(id int) error {
 func UpdateFeatureFlag(id int, flag models.FeatureFlag) error {
 	return repository.UpdateFlag(id, flag)
 }
+
+func EvaluateFlag(flagName string, env string) (bool, error) {
+
+	flag, err := repository.GetFlagByName(flagName)
+
+	if err != nil {
+		return false, err
+	}
+
+	// Kill Switch (Highest Priority)
+	if flag.KillSwitch {
+		return false, nil
+	}
+
+	// Environment Check
+	if flag.Environment != env {
+		return false, nil
+	}
+
+	// Global Boolean Flag
+	if flag.Enabled {
+		return true, nil
+	}
+
+	return false, nil
+}

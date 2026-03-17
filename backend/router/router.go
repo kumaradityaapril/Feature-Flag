@@ -23,6 +23,7 @@ func SetupRouter() *gin.Engine {
 	r.GET("/flags/:id", handlers.GetFlagByID)
 	r.PUT("/flags/:id", handlers.UpdateFlag)
 	r.DELETE("/flags/:id", handlers.DeleteFlag)
+	r.POST("/evaluate", handlers.EvaluateFlag)
 
 	return r
 }
