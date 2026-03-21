@@ -3,6 +3,7 @@ package services
 import (
 	"feature-flag/models"
 	"feature-flag/repository"
+	"hash/fnv"
 )
 
 func CreateFeatureFlag(flag models.FeatureFlag) error {
@@ -85,5 +86,19 @@ func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 		}
 	}
 
+	// 8️⃣ Percentage Rollout
+	if flag.RolloutPercentage > 0 {
+		userPercent := getUserPercentage(req.UserID)
+		if userPercent >= flag.RolloutPercentage {
+			return false, nil
+		}
+	}
+
 	return true, nil
+}
+
+func getUserPercentage(userID string) int {
+	h := fnv.New32a()
+	h.Write([]byte(userID))
+	return int(h.Sum32() % 100)
 }
