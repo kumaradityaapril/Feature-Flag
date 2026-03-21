@@ -3,7 +3,6 @@ package services
 import (
 	"feature-flag/models"
 	"feature-flag/repository"
-	"fmt"
 	"hash/fnv"
 )
 
@@ -48,7 +47,6 @@ func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 	// 1️⃣ Check cache first
 	flag, exists := flagCache[req.FlagName]
 	if !exists {
-		fmt.Println("Fetching from DB")
 		var err error
 		flag, err = repository.GetFlagByName(flagName)
 		if err != nil {

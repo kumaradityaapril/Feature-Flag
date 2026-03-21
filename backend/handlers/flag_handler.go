@@ -20,6 +20,11 @@ func CreateFlag(c *gin.Context) {
 		return
 	}
 
+	if flag.Name == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "name is required"})
+		return
+	}
+
 	err := services.CreateFeatureFlag(flag)
 
 	if err != nil {
@@ -99,7 +104,7 @@ func UpdateFlag(c *gin.Context) {
 	var flag models.FeatureFlag
 
 	if err := c.ShouldBindJSON(&flag); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -118,7 +123,12 @@ func EvaluateFlag(c *gin.Context) {
 	var req models.EvaluationRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.FlagName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "flag_name is required"})
 		return
 	}
 
