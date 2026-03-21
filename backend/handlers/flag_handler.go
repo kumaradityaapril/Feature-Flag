@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -12,6 +13,8 @@ import (
 )
 
 func CreateFlag(c *gin.Context) {
+
+	log.Println("CreateFlag API called")
 
 	var flag models.FeatureFlag
 
@@ -34,6 +37,7 @@ func CreateFlag(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Feature flag created"})
+	log.Println("Feature flag created:", flag.Name)
 }
 
 func GetFlags(c *gin.Context) {
@@ -132,12 +136,16 @@ func EvaluateFlag(c *gin.Context) {
 		return
 	}
 
+	log.Println("EvaluateFlag API called for:", req.FlagName)
+
 	result, err := services.EvaluateFlag(req.FlagName, req)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Flag not found"})
 		return
 	}
+
+	log.Println("Evaluation result:", result)
 
 	c.JSON(http.StatusOK, models.EvaluationResponse{
 		Enabled: result,

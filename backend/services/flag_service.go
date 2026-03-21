@@ -4,6 +4,7 @@ import (
 	"feature-flag/models"
 	"feature-flag/repository"
 	"hash/fnv"
+	"log"
 )
 
 var flagCache = make(map[string]models.FeatureFlag)
@@ -55,18 +56,23 @@ func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 		flagCache[req.FlagName] = flag
 	}
 
+	log.Println("Evaluating flag:", flag.Name)
+
 	// 1️⃣ Kill Switch
 	if flag.KillSwitch {
+		log.Println("Kill switch enabled")
 		return false, nil
 	}
 
 	// 2️⃣ Environment Check
 	if flag.Environment != req.Environment {
+		log.Println("Environment mismatch")
 		return false, nil
 	}
 
 	// 3️⃣ Global Boolean
 	if !flag.Enabled {
+		log.Println("Flag disabled")
 		return false, nil
 	}
 
