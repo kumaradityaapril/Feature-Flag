@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -22,7 +23,8 @@ func CreateFlag(c *gin.Context) {
 	err := services.CreateFeatureFlag(flag)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create flag"})
+		fmt.Println("ERROR:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -120,7 +122,7 @@ func EvaluateFlag(c *gin.Context) {
 		return
 	}
 
-	result, err := services.EvaluateFlag(req.FlagName, req.Environment)
+	result, err := services.EvaluateFlag(req.FlagName, req)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Flag not found"})

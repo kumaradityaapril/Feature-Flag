@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"feature-flag/config"
 	"feature-flag/models"
 )
@@ -14,6 +15,8 @@ func CreateFlag(flag models.FeatureFlag) error {
 	VALUES ($1,$2,$3,$4,$5,$6)
 	`
 
+	rulesJSON, _ := json.Marshal(flag.Rules)
+
 	_, err := config.DB.Exec(
 		context.Background(),
 		query,
@@ -21,7 +24,7 @@ func CreateFlag(flag models.FeatureFlag) error {
 		flag.Enabled,
 		flag.Environment,
 		flag.RolloutPercentage,
-		flag.Rules,
+		rulesJSON,
 		flag.KillSwitch,
 	)
 
@@ -43,6 +46,7 @@ func GetAllFlags() ([]models.FeatureFlag, error) {
 	for rows.Next() {
 
 		var flag models.FeatureFlag
+		var rulesBytes []byte
 
 		err := rows.Scan(
 			&flag.ID,
@@ -50,7 +54,7 @@ func GetAllFlags() ([]models.FeatureFlag, error) {
 			&flag.Enabled,
 			&flag.Environment,
 			&flag.RolloutPercentage,
-			&flag.Rules,
+			&rulesBytes,
 			&flag.KillSwitch,
 			&flag.CreatedAt,
 		)
@@ -58,6 +62,8 @@ func GetAllFlags() ([]models.FeatureFlag, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		json.Unmarshal(rulesBytes, &flag.Rules)
 
 		flags = append(flags, flag)
 	}
@@ -70,6 +76,7 @@ func GetFlagByID(id int) (models.FeatureFlag, error) {
 	query := "SELECT * FROM feature_flags WHERE id=$1"
 
 	var flag models.FeatureFlag
+	var rulesBytes []byte
 
 	err := config.DB.QueryRow(context.Background(), query, id).Scan(
 		&flag.ID,
@@ -77,10 +84,12 @@ func GetFlagByID(id int) (models.FeatureFlag, error) {
 		&flag.Enabled,
 		&flag.Environment,
 		&flag.RolloutPercentage,
-		&flag.Rules,
+		&rulesBytes,
 		&flag.KillSwitch,
 		&flag.CreatedAt,
 	)
+
+	json.Unmarshal(rulesBytes, &flag.Rules)
 
 	return flag, err
 }
@@ -102,6 +111,8 @@ func UpdateFlag(id int, flag models.FeatureFlag) error {
 	WHERE id=$7
 	`
 
+	rulesJSON, _ := json.Marshal(flag.Rules)
+
 	_, err := config.DB.Exec(
 		context.Background(),
 		query,
@@ -109,7 +120,7 @@ func UpdateFlag(id int, flag models.FeatureFlag) error {
 		flag.Enabled,
 		flag.Environment,
 		flag.RolloutPercentage,
-		flag.Rules,
+		rulesJSON,
 		flag.KillSwitch,
 		id,
 	)
@@ -122,6 +133,7 @@ func GetFlagByName(name string) (models.FeatureFlag, error) {
 	query := "SELECT * FROM feature_flags WHERE name=$1"
 
 	var flag models.FeatureFlag
+	var rulesBytes []byte
 
 	err := config.DB.QueryRow(context.Background(), query, name).Scan(
 		&flag.ID,
@@ -129,10 +141,12 @@ func GetFlagByName(name string) (models.FeatureFlag, error) {
 		&flag.Enabled,
 		&flag.Environment,
 		&flag.RolloutPercentage,
-		&flag.Rules,
+		&rulesBytes,
 		&flag.KillSwitch,
 		&flag.CreatedAt,
 	)
+
+	json.Unmarshal(rulesBytes, &flag.Rules)
 
 	return flag, err
 }

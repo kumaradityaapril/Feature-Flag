@@ -25,28 +25,65 @@ func UpdateFeatureFlag(id int, flag models.FeatureFlag) error {
 	return repository.UpdateFlag(id, flag)
 }
 
-func EvaluateFlag(flagName string, env string) (bool, error) {
+func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 
 	flag, err := repository.GetFlagByName(flagName)
-
 	if err != nil {
 		return false, err
 	}
 
-	// Kill Switch (Highest Priority)
+	// 1️⃣ Kill Switch
 	if flag.KillSwitch {
 		return false, nil
 	}
 
-	// Environment Check
-	if flag.Environment != env {
+	// 2️⃣ Environment Check
+	if flag.Environment != req.Environment {
 		return false, nil
 	}
 
-	// Global Boolean Flag
-	if flag.Enabled {
-		return true, nil
+	// 3️⃣ Global Boolean
+	if !flag.Enabled {
+		return false, nil
 	}
 
-	return false, nil
+	// 4️⃣ Parse Rules
+	rules := flag.Rules
+
+	// 5️⃣ User Targeting
+	if users, ok := rules["users"].([]interface{}); ok {
+		found := false
+		for _, u := range users {
+			if u == req.UserID {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false, nil
+		}
+	}
+
+	// 6️⃣ Country Targeting
+	if countries, ok := rules["countries"].([]interface{}); ok {
+		found := false
+		for _, c := range countries {
+			if c == req.Country {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false, nil
+		}
+	}
+
+	// 7️⃣ Version Targeting (Basic)
+	if minVersion, ok := rules["min_version"].(string); ok {
+		if req.AppVersion < minVersion {
+			return false, nil
+		}
+	}
+
+	return true, nil
 }
