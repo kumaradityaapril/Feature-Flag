@@ -3,11 +3,19 @@ package services
 import (
 	"feature-flag/models"
 	"feature-flag/repository"
+	"fmt"
 	"hash/fnv"
 )
 
+var flagCache = make(map[string]models.FeatureFlag)
+
 func CreateFeatureFlag(flag models.FeatureFlag) error {
-	return repository.CreateFlag(flag)
+	err := repository.CreateFlag(flag)
+	if err != nil {
+		return err
+	}
+	flagCache[flag.Name] = flag
+	return nil
 }
 
 func GetFeatureFlags() ([]models.FeatureFlag, error) {
@@ -19,18 +27,34 @@ func GetFeatureFlagByID(id int) (models.FeatureFlag, error) {
 }
 
 func DeleteFeatureFlag(id int) error {
+	flag, err := repository.GetFlagByID(id)
+	if err == nil {
+		delete(flagCache, flag.Name)
+	}
 	return repository.DeleteFlag(id)
 }
 
 func UpdateFeatureFlag(id int, flag models.FeatureFlag) error {
-	return repository.UpdateFlag(id, flag)
+	err := repository.UpdateFlag(id, flag)
+	if err != nil {
+		return err
+	}
+	flagCache[flag.Name] = flag
+	return nil
 }
 
 func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 
-	flag, err := repository.GetFlagByName(flagName)
-	if err != nil {
-		return false, err
+	// 1️⃣ Check cache first
+	flag, exists := flagCache[req.FlagName]
+	if !exists {
+		fmt.Println("Fetching from DB")
+		var err error
+		flag, err = repository.GetFlagByName(flagName)
+		if err != nil {
+			return false, err
+		}
+		flagCache[req.FlagName] = flag
 	}
 
 	// 1️⃣ Kill Switch
