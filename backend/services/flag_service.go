@@ -22,6 +22,10 @@ func GetFeatureFlags() ([]models.FeatureFlag, error) {
 	return repository.GetAllFlags()
 }
 
+func GetFlagsByEnvironment(env string) ([]models.FeatureFlag, error) {
+	return repository.GetFlagsByEnvironment(env)
+}
+
 func GetFeatureFlagByID(id int) (models.FeatureFlag, error) {
 	return repository.GetFlagByID(id)
 }

@@ -150,3 +150,38 @@ func GetFlagByName(name string) (models.FeatureFlag, error) {
 
 	return flag, err
 }
+
+func GetFlagsByEnvironment(env string) ([]models.FeatureFlag, error) {
+	query := `SELECT id, name, enabled, environment, rollout_percentage, rules, kill_switch FROM feature_flags WHERE environment=$1`
+
+	rows, err := config.DB.Query(context.Background(), query, env)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var flags []models.FeatureFlag
+
+	for rows.Next() {
+		var flag models.FeatureFlag
+		var rulesBytes []byte
+
+		err := rows.Scan(
+			&flag.ID,
+			&flag.Name,
+			&flag.Enabled,
+			&flag.Environment,
+			&flag.RolloutPercentage,
+			&rulesBytes,
+			&flag.KillSwitch,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		json.Unmarshal(rulesBytes, &flag.Rules)
+		flags = append(flags, flag)
+	}
+
+	return flags, nil
+}

@@ -19,12 +19,18 @@ func CreateFlag(c *gin.Context) {
 	var flag models.FeatureFlag
 
 	if err := c.ShouldBindJSON(&flag); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, models.APIResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
 		return
 	}
 
 	if flag.Name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "name is required"})
+		c.JSON(http.StatusBadRequest, models.APIResponse{
+			Success: false,
+			Error:   "name is required",
+		})
 		return
 	}
 
@@ -32,24 +38,42 @@ func CreateFlag(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println("ERROR:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Feature flag created"})
+	c.JSON(http.StatusOK, models.APIResponse{
+		Success: true,
+		Data:    "Feature flag created",
+	})
 	log.Println("Feature flag created:", flag.Name)
 }
 
 func GetFlags(c *gin.Context) {
 
-	flags, err := services.GetFeatureFlags()
+	env := c.Query("environment")
+
+	var flags []models.FeatureFlag
+	var err error
+
+	if env != "" {
+		flags, err = services.GetFlagsByEnvironment(env)
+	} else {
+		flags, err = services.GetFeatureFlags()
+	}
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch flags"})
 		return
 	}
 
-	c.JSON(http.StatusOK, flags)
+	c.JSON(http.StatusOK, models.APIResponse{
+		Success: true,
+		Data:    flags,
+	})
 }
 
 func GetFlagByID(c *gin.Context) {
@@ -147,7 +171,10 @@ func EvaluateFlag(c *gin.Context) {
 
 	log.Println("Evaluation result:", result)
 
-	c.JSON(http.StatusOK, models.EvaluationResponse{
-		Enabled: result,
+	c.JSON(http.StatusOK, models.APIResponse{
+		Success: true,
+		Data: gin.H{
+			"enabled": result,
+		},
 	})
 }
