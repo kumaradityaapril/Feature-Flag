@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -11,7 +12,7 @@ var DB *pgxpool.Pool
 
 func ConnectDB() {
 
-	databaseUrl := "postgres://postgres:postgres123@localhost:5432/feature_flags"
+	databaseUrl := os.Getenv("DB_URL")
 
 	pool, err := pgxpool.New(context.Background(), databaseUrl)
 
