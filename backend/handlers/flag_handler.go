@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -19,37 +18,27 @@ func CreateFlag(c *gin.Context) {
 	var flag models.FeatureFlag
 
 	if err := c.ShouldBindJSON(&flag); err != nil {
-		c.JSON(http.StatusBadRequest, models.APIResponse{
-			Success: false,
-			Error:   err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: err.Error()})
 		return
 	}
 
 	if flag.Name == "" {
-		c.JSON(http.StatusBadRequest, models.APIResponse{
-			Success: false,
-			Error:   "name is required",
-		})
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: "name is required"})
 		return
 	}
 
-	err := services.CreateFeatureFlag(flag)
-
-	if err != nil {
-		fmt.Println("ERROR:", err)
-		c.JSON(http.StatusInternalServerError, models.APIResponse{
-			Success: false,
-			Error:   err.Error(),
-		})
+	if flag.Environment == "" {
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: "environment is required"})
 		return
 	}
 
-	c.JSON(http.StatusOK, models.APIResponse{
-		Success: true,
-		Data:    "Feature flag created",
-	})
+	if err := services.CreateFeatureFlag(flag); err != nil {
+		c.JSON(http.StatusInternalServerError, models.APIResponse{Success: false, Error: err.Error()})
+		return
+	}
+
 	log.Println("Feature flag created:", flag.Name)
+	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: "Feature flag created"})
 }
 
 func GetFlags(c *gin.Context) {
@@ -66,84 +55,71 @@ func GetFlags(c *gin.Context) {
 	}
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch flags"})
+		c.JSON(http.StatusInternalServerError, models.APIResponse{Success: false, Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, models.APIResponse{
-		Success: true,
-		Data:    flags,
-	})
+	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: flags})
 }
 
 func GetFlagByID(c *gin.Context) {
 
-	idParam := c.Param("id")
-
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: "invalid ID"})
 		return
 	}
 
 	flag, err := services.GetFeatureFlagByID(id)
-
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Flag not found"})
+		c.JSON(http.StatusNotFound, models.APIResponse{Success: false, Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, flag)
+	if flag.ID == 0 {
+		c.JSON(http.StatusNotFound, models.APIResponse{Success: false, Error: "flag not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: flag})
 }
 
 func DeleteFlag(c *gin.Context) {
 
-	idParam := c.Param("id")
-
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: "invalid ID"})
 		return
 	}
 
-	err = services.DeleteFeatureFlag(id)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete flag"})
+	if err := services.DeleteFeatureFlag(id); err != nil {
+		c.JSON(http.StatusInternalServerError, models.APIResponse{Success: false, Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Flag deleted successfully"})
+	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: "Feature flag deleted"})
 }
 
 func UpdateFlag(c *gin.Context) {
 
-	idParam := c.Param("id")
-
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: "invalid ID"})
 		return
 	}
 
 	var flag models.FeatureFlag
-
 	if err := c.ShouldBindJSON(&flag); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: err.Error()})
 		return
 	}
 
-	err = services.UpdateFeatureFlag(id, flag)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update flag"})
+	if err := services.UpdateFeatureFlag(id, flag); err != nil {
+		c.JSON(http.StatusInternalServerError, models.APIResponse{Success: false, Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Flag updated successfully"})
+	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: "Feature flag updated"})
 }
 
 func EvaluateFlag(c *gin.Context) {
@@ -151,30 +127,28 @@ func EvaluateFlag(c *gin.Context) {
 	var req models.EvaluationRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: err.Error()})
 		return
 	}
 
 	if req.FlagName == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "flag_name is required"})
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: "flag_name is required"})
+		return
+	}
+
+	if req.UserID == "" {
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: "user_id is required"})
 		return
 	}
 
 	log.Println("EvaluateFlag API called for:", req.FlagName)
 
 	result, err := services.EvaluateFlag(req.FlagName, req)
-
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Flag not found"})
+		c.JSON(http.StatusNotFound, models.APIResponse{Success: false, Error: err.Error()})
 		return
 	}
 
 	log.Println("Evaluation result:", result)
-
-	c.JSON(http.StatusOK, models.APIResponse{
-		Success: true,
-		Data: gin.H{
-			"enabled": result,
-		},
-	})
+	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: gin.H{"enabled": result}})
 }
