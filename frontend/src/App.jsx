@@ -12,6 +12,16 @@ function App() {
     kill_switch: false,
   });
 
+  const [evalData, setEvalData] = useState({
+    flag_name: "",
+    user_id: "",
+    country: "",
+    app_version: "",
+    environment: "",
+  });
+
+  const [result, setResult] = useState(null);
+
   const getFlags = async () => {
     try {
       const res = await API.get("/flags");
@@ -28,6 +38,21 @@ function App() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
+  };
+
+  const handleEvalChange = (e) => {
+    const { name, value } = e.target;
+    setEvalData({ ...evalData, [name]: value });
+  };
+
+  const evaluateFlag = async () => {
+    try {
+      const res = await API.post("/evaluate", evalData);
+      setResult(res.data.data.enabled);
+    } catch (err) {
+      console.error(err);
+      alert("Error evaluating flag");
+    }
   };
 
   const deleteFlag = async (id) => {
@@ -144,6 +169,28 @@ function App() {
             </li>
           ))}
         </ul>
+      )}
+      <hr />
+
+      <h2>Evaluate Feature Flag</h2>
+
+      <input name="flag_name" placeholder="Flag Name" onChange={handleEvalChange} />
+      <br />
+      <input name="user_id" placeholder="User ID" onChange={handleEvalChange} />
+      <br />
+      <input name="country" placeholder="Country" onChange={handleEvalChange} />
+      <br />
+      <input name="app_version" placeholder="App Version" onChange={handleEvalChange} />
+      <br />
+      <input name="environment" placeholder="Environment" onChange={handleEvalChange} />
+      <br /><br />
+
+      <button onClick={evaluateFlag}>Evaluate</button>
+
+      <br /><br />
+
+      {result !== null && (
+        <h3>Result: {result ? "Enabled ✅" : "Disabled ❌"}</h3>
       )}
     </div>
   );
