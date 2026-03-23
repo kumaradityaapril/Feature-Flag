@@ -30,6 +30,35 @@ function App() {
     setForm({ ...form, [name]: value });
   };
 
+  const deleteFlag = async (id) => {
+    try {
+      await API.delete(`/flags/${id}`);
+      alert("Flag deleted");
+      getFlags();
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting flag");
+    }
+  };
+
+  const toggleFlag = async (flag) => {
+    try {
+      await API.put(`/flags/${flag.id}`, { ...flag, enabled: !flag.enabled });
+      getFlags();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const updateRollout = async (flag, value) => {
+    try {
+      await API.put(`/flags/${flag.id}`, { ...flag, rollout_percentage: Number(value) });
+      getFlags();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const createFlag = async () => {
     try {
       const payload = {
@@ -97,6 +126,21 @@ function App() {
             <li key={flag.id}>
               <strong>{flag.name}</strong> -{" "}
               {flag.enabled ? "Enabled" : "Disabled"}
+
+              <br />
+
+              <button onClick={() => toggleFlag(flag)}>Toggle</button>
+              <button onClick={() => deleteFlag(flag.id)}>Delete</button>
+
+              <br />
+
+              <input
+                type="number"
+                placeholder="New rollout %"
+                onBlur={(e) => updateRollout(flag, e.target.value)}
+              />
+
+              <hr />
             </li>
           ))}
         </ul>
