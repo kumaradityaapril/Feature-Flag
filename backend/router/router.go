@@ -3,12 +3,15 @@ package router
 import (
 	"feature-flag/handlers"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
 
 	r := gin.Default()
+
+	r.Use(cors.Default())
 
 	// health route
 	r.GET("/health", func(c *gin.Context) {
