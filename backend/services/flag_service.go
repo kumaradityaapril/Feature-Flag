@@ -50,7 +50,7 @@ func UpdateFeatureFlag(id int, flag models.FeatureFlag) error {
 
 func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 
-	// 1️⃣ Check cache first
+	// Check cache first
 	flag, exists := flagCache[req.FlagName]
 	if !exists {
 		var err error
@@ -63,22 +63,22 @@ func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 
 	log.Println("Evaluating flag:", flag.Name)
 
-	// 1️⃣ Kill Switch
+	// Kill Switch
 	if flag.KillSwitch {
 		log.Println("Kill switch enabled")
 		return false, nil
 	}
 
-	// 2️⃣ Environment Check
+	// Environment Check
 	if normalizeEnv(flag.Environment) != normalizeEnv(req.Environment) {
 		log.Println("Environment mismatch")
 		return false, nil
 	}
 
-	// 3️⃣ Parse Rules
+	// Parse Rules
 	rules := flag.Rules
 
-	// 4️⃣ User Targeting (Whitelist)
+	// User Targeting (Whitelist)
 	if users, ok := rules["users"].([]interface{}); ok && len(users) > 0 {
 		for _, u := range users {
 			if str, ok := u.(string); ok && str == req.UserID {
@@ -88,7 +88,7 @@ func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 		}
 	}
 
-	// 5️⃣ Country Targeting (Restrictive Filter)
+	// Country Targeting (Restrictive Filter)
 	if countries, ok := rules["countries"].([]interface{}); ok && len(countries) > 0 {
 		found := false
 		for _, c := range countries {
@@ -103,7 +103,7 @@ func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 		}
 	}
 
-	// 6️⃣ Version Targeting (Restrictive Filter)
+	// Version Targeting (Restrictive Filter)
 	if minVersion, ok := rules["min_version"].(string); ok && minVersion != "" {
 		if req.AppVersion != "" && req.AppVersion < minVersion {
 			log.Println("App version too low - DISABLED")
@@ -111,7 +111,7 @@ func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 		}
 	}
 
-	// 7️⃣ Percentage Rollout
+	// Percentage Rollout
 	if flag.RolloutPercentage > 0 && flag.RolloutPercentage < 100 {
 		userPercent := getUserPercentage(req.UserID)
 		if userPercent >= flag.RolloutPercentage {
@@ -125,7 +125,7 @@ func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 		return true, nil
 	}
 
-	// 8️⃣ Global Boolean (Fallback)
+	// Global Boolean (Fallback)
 	if !flag.Enabled {
 		log.Println("Flag disabled globally")
 		return false, nil
