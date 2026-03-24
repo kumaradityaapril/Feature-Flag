@@ -8,7 +8,7 @@ const CreateFlag = () => {
   const [loading, setLoading] = useState(false);
   const [killSwitch, setKillSwitch] = useState(false);
   const [booleanState, setBooleanState] = useState('OFF');
-  const [env, setEnv] = useState('Prod');
+  const [env, setEnv] = useState('Production');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -120,7 +120,7 @@ const CreateFlag = () => {
                  <HelpCircle size={14} className="text-slate-400 cursor-help" />
                </div>
                <div className="flex items-center gap-6 mt-2">
-                 {['Dev', 'Staging', 'Prod'].map((e) => (
+                 {['Dev', 'Staging', 'Production'].map((e) => (
                    <label key={e} className="flex items-center gap-2 cursor-pointer group">
                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${env === e ? 'border-blue-500' : 'border-slate-300 group-hover:border-blue-400'}`}>
                        {env === e && <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>}

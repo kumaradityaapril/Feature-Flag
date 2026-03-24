@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, ChevronDown, User, LogOut } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 const Header = () => {
@@ -35,20 +35,7 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors">
-            <Bell size={20} />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-          </button>
-          
-          <div className="h-8 w-px bg-slate-200 mx-2"></div>
-          
-          <button className="flex items-center gap-2 text-slate-700 hover:text-slate-900">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200 overflow-hidden">
-               {/* Placeholder Avatar */}
-               <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="Profile" className="w-full h-full object-cover" />
-            </div>
-            <LogOut size={18} className="text-slate-400 ml-2" />
-          </button>
+          {/* Auth features pending */}
         </div>
 
       </div>
