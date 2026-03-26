@@ -22,6 +22,21 @@ const AuditLogs = () => {
     { time: 'Oct 25, 2023 • 10:05 AM', action: 'CREATE', actionColor: 'bg-green-100 text-green-700', flag: 'holiday_promo_banner', env: 'Dev', envColor: 'border-slate-200 text-slate-600 bg-slate-100', user: 'Mike Johnson', role: 'ADMINISTRATOR', avatar: 'https://i.pravatar.cc/150?u=2' },
   ];
 
+  const exportLogsCSV = () => {
+    const headers = ["Timestamp", "Action", "Flag", "Environment", "User", "Role"];
+    const csvRows = [headers.join(',')];
+    logs.forEach(log => {
+      csvRows.push([`"${log.time}"`, log.action, log.flag, log.env, `"${log.user}"`, log.role].join(','));
+    });
+    const csvContent = "data:text/csv;charset=utf-8," + encodeURI(csvRows.join('\n'));
+    const link = document.createElement("a");
+    link.href = csvContent;
+    link.download = "audit_logs.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
       
@@ -31,7 +46,7 @@ const AuditLogs = () => {
           <h2 className="text-2xl font-bold text-slate-900 mb-1">Audit Logs</h2>
           <p className="text-slate-500 text-sm">Track and monitor all changes across your feature flag ecosystem for compliance.</p>
         </div>
-        <button className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
+        <button onClick={exportLogsCSV} className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
           <Download size={16} /> Export CSV
         </button>
       </div>

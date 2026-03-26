@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Flag, Zap, ShieldAlert, Globe, ArrowRight, ChevronRight, Activity } from 'lucide-react';
 import API from '../api/api';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [flags, setFlags] = useState([]);
   
   useEffect(() => {
@@ -32,7 +34,7 @@ const Dashboard = () => {
             Manage your application's behavior in real-time without redeploying. Control rollouts, target specific user segments, and use kill-switches to ensure stability across all environments.
           </p>
           <div className="flex gap-4">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm shadow-blue-200">
+            <button onClick={() => navigate('/create')} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm shadow-blue-200">
               Create Your First Flag
             </button>
             <button className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm">
