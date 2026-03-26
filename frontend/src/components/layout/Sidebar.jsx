@@ -8,6 +8,7 @@ const Sidebar = () => {
     { name: 'Feature Flags', path: '/flags', icon: Flag },
     { name: 'Evaluator', path: '/evaluator', icon: Terminal },
     { name: 'Create Flag', path: '/create', icon: PlusCircle },
+    { name: 'Export Data', path: '/export', icon: FileText },
   ];
 
   return (

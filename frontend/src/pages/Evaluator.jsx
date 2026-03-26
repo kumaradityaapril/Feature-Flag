@@ -71,10 +71,10 @@ const Evaluator = () => {
           <p className="text-slate-500 text-sm">Monitor and manage your evaluation pipeline across environments.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2">
+          <button onClick={() => navigate('/export')} className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2">
             <Download size={16} /> Export Report
           </button>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
+          <button onClick={() => navigate('/create')} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
             <Plus size={18} /> Create Flag
           </button>
         </div>

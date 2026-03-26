@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import FeatureFlags from './pages/FeatureFlags';
 import Evaluator from './pages/Evaluator';
 import CreateFlag from './pages/CreateFlag';
+import Export from './pages/Export';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="flags" element={<FeatureFlags />} />
         <Route path="evaluator" element={<Evaluator />} />
         <Route path="create" element={<CreateFlag />} />
+        <Route path="export" element={<Export />} />
       </Route>
     </Routes>
   );
