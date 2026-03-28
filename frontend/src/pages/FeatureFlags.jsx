@@ -10,6 +10,8 @@ const FeatureFlags = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(location.state?.search || '');
   const [envFilter, setEnvFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   const filteredFlags = flags.filter(flag => {
     const searchString = searchQuery.toLowerCase();
@@ -30,8 +32,15 @@ const FeatureFlags = () => {
         matchesEnv = dbEnv === filterEnv;
       }
     }
+
+    let matchesStatus = true;
+    if (statusFilter === 'Live') {
+      matchesStatus = flag.enabled === true;
+    } else if (statusFilter === 'Off') {
+      matchesStatus = flag.enabled === false;
+    }
                        
-    return matchesSearch && matchesEnv;
+    return matchesSearch && matchesEnv && matchesStatus;
   });
 
   const fetchFlags = async () => {
@@ -152,9 +161,40 @@ const FeatureFlags = () => {
           />
         </div>
         <div className="flex w-full lg:w-auto items-center gap-3 justify-end">
-          <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">
-            <Filter size={16} /> Filters
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+              className={`flex items-center gap-2 border px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showFilterMenu || statusFilter !== 'All' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+            >
+              <Filter size={16} /> Filters
+              {statusFilter !== 'All' && <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>}
+            </button>
+            
+            {showFilterMenu && (
+              <div className="absolute top-full right-0 lg:left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-2">
+                <div className="px-4 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status Filter</div>
+                <button 
+                  onClick={() => { setStatusFilter('All'); setShowFilterMenu(false); }}
+                  className={`w-full text-left px-4 py-2 text-sm ${statusFilter === 'All' ? 'bg-slate-50 text-blue-700 font-semibold' : 'text-slate-700 hover:bg-slate-50'}`}
+                >
+                  All Statuses
+                </button>
+                <button 
+                  onClick={() => { setStatusFilter('Live'); setShowFilterMenu(false); }}
+                  className={`w-full text-left px-4 py-2 text-sm ${statusFilter === 'Live' ? 'bg-slate-50 text-blue-700 font-semibold' : 'text-slate-700 hover:bg-slate-50'}`}
+                >
+                  Live Only
+                </button>
+                <button 
+                  onClick={() => { setStatusFilter('Off'); setShowFilterMenu(false); }}
+                  className={`w-full text-left px-4 py-2 text-sm ${statusFilter === 'Off' ? 'bg-slate-50 text-blue-700 font-semibold' : 'text-slate-700 hover:bg-slate-50'}`}
+                >
+                  Off Only
+                </button>
+              </div>
+            )}
+          </div>
+
           <select 
             value={envFilter}
             onChange={(e) => setEnvFilter(e.target.value)}
