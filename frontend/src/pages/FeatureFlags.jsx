@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Download, Plus, MoreHorizontal, TerminalSquare, Clock, Trash2 } from 'lucide-react';
+import { Search, Filter, Download, Plus, MoreHorizontal, TerminalSquare, Clock, Trash2, Edit2 } from 'lucide-react';
 import API from '../api/api';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -12,6 +12,12 @@ const FeatureFlags = () => {
   const [envFilter, setEnvFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 7;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, envFilter, statusFilter]);
 
   const filteredFlags = flags.filter(flag => {
     const searchString = searchQuery.toLowerCase();
@@ -78,6 +84,9 @@ const FeatureFlags = () => {
       console.error(err);
     }
   };
+
+  const totalPages = Math.ceil(filteredFlags.length / ITEMS_PER_PAGE);
+  const paginatedFlags = filteredFlags.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const downloadFilteredCSV = () => {
     if (!filteredFlags.length) return;
@@ -234,13 +243,13 @@ const FeatureFlags = () => {
                 <tr>
                   <td colSpan="5" className="px-6 py-8 text-center text-sm text-slate-500">Loading flags...</td>
                 </tr>
-              ) : filteredFlags.length === 0 ? (
+              ) : paginatedFlags.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="px-6 py-8 text-center text-sm text-slate-500">
                     {flags.length === 0 ? "No flags found. Create one to get started." : "No flags match your search and filter criteria."}
                   </td>
                 </tr>
-              ) : filteredFlags.map((flag) => {
+              ) : paginatedFlags.map((flag) => {
                 let envColor = 'bg-slate-100 text-slate-600 border-slate-200';
                 if (flag.environment?.toLowerCase() === 'prod' || flag.environment?.toLowerCase() === 'production') {
                    envColor = 'bg-blue-50 text-blue-600 border-blue-100';
@@ -288,13 +297,22 @@ const FeatureFlags = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button 
-                        onClick={() => deleteFlag(flag.id)}
-                        className="text-slate-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-slate-100"
-                        title="Delete Flag"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      <div className="flex items-center justify-end gap-1">
+                        <button 
+                          onClick={() => navigate(`/edit/${flag.id}`)}
+                          className="text-slate-400 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-slate-100"
+                          title="Edit Flag"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button 
+                          onClick={() => deleteFlag(flag.id)}
+                          className="text-slate-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-slate-100"
+                          title="Delete Flag"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -303,25 +321,57 @@ const FeatureFlags = () => {
           </table>
         </div>
         
-        {/* Pagination */}
-        <div className="border-t border-slate-100 px-6 py-4 flex items-center justify-between">
-          <p className="text-sm text-slate-500">Showing <span className="font-semibold text-slate-900">{filteredFlags.length > 0 ? 1 : 0}-{filteredFlags.length}</span> of <span className="font-semibold text-slate-900">{flags.length}</span> flags</p>
-          <div className="flex items-center gap-1">
-            <button className="text-sm font-medium text-slate-400 px-3 py-1 flex items-center gap-1 cursor-not-allowed">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-180"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              Previous
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-md bg-white border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50">1</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-md bg-transparent text-sm font-medium text-slate-500 hover:bg-slate-50">2</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-md bg-transparent text-sm font-medium text-slate-500 hover:bg-slate-50">3</button>
-            <span className="text-slate-400 px-1">...</span>
-            <button className="w-8 h-8 flex items-center justify-center rounded-md bg-transparent text-sm font-medium text-slate-500 hover:bg-slate-50">25</button>
-            <button className="text-sm font-medium text-slate-900 px-3 py-1 flex items-center gap-1 hover:bg-slate-50 rounded-md">
-              Next
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            </button>
+        {/* Pagination logic */}
+        {filteredFlags.length > ITEMS_PER_PAGE && (
+          <div className="border-t border-slate-100 px-6 py-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <p className="text-sm text-slate-500">
+              Showing <span className="font-semibold text-slate-900">{(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredFlags.length)}</span> of <span className="font-semibold text-slate-900">{filteredFlags.length}</span> flags
+            </p>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="text-sm font-medium text-slate-400 hover:text-slate-600 px-3 py-1 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-180"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                Previous
+              </button>
+              
+              {Array.from({ length: totalPages }).map((_, idx) => {
+                const pageNum = idx + 1;
+                // Simple threshold for rendering all pages or truncating
+                if (totalPages > 5 && (pageNum < currentPage - 1 || pageNum > currentPage + 1) && pageNum !== 1 && pageNum !== totalPages) {
+                  if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                    return <span key={idx} className="text-slate-400 px-1">...</span>;
+                  }
+                  return null;
+                }
+                return (
+                  <button 
+                    key={idx}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-semibold transition-colors ${
+                      currentPage === pageNum 
+                        ? 'bg-blue-50 text-blue-600 border border-blue-100' 
+                        : 'bg-transparent text-slate-500 hover:bg-slate-50 border border-transparent hover:border-slate-200'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="text-sm font-medium px-3 py-1 flex items-center gap-1 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-blue-600 hover:bg-blue-50"
+              >
+                Next
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
     </div>

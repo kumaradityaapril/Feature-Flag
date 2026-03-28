@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ShieldAlert, HelpCircle, Globe } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import API from '../api/api';
 
 const CreateFlag = () => {
+  const { id } = useParams();
+  const isEditMode = !!id;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(isEditMode);
   const [killSwitch, setKillSwitch] = useState(false);
   const [booleanState, setBooleanState] = useState('OFF');
   const [env, setEnv] = useState('Production');
@@ -21,6 +24,34 @@ const CreateFlag = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  useEffect(() => {
+    if (isEditMode) {
+      const fetchFlag = async () => {
+        try {
+          const res = await API.get(`/flags/${id}`);
+          const flag = res.data?.data || res.data;
+          setFormData({
+            name: flag.name || '',
+            description: flag.rules?.description || '',
+            targetUserIds: flag.rules?.users?.join(', ') || '',
+            countryCodes: flag.rules?.countries?.join(', ') || '',
+            minAppVersion: flag.rules?.min_version || '',
+            rolloutPercentage: flag.rollout_percentage || 0
+          });
+          setBooleanState(flag.enabled ? 'ON' : 'OFF');
+          setKillSwitch(flag.kill_switch || false);
+          setEnv(flag.environment || 'Production');
+        } catch (err) {
+          console.error(err);
+          alert("Error fetching flag details.");
+        } finally {
+          setFetching(false);
+        }
+      };
+      fetchFlag();
+    }
+  }, [id, isEditMode]);
 
   const handleSubmit = async () => {
     if (!formData.name) {
@@ -44,8 +75,13 @@ const CreateFlag = () => {
         }
       };
 
-      await API.post('/flags', payload);
-      alert("Flag created successfully!");
+      if (isEditMode) {
+        await API.put(`/flags/${id}`, payload);
+        alert("Flag updated successfully!");
+      } else {
+        await API.post('/flags', payload);
+        alert("Flag created successfully!");
+      }
       navigate('/flags');
     } catch (err) {
       console.error(err);
@@ -67,8 +103,8 @@ const CreateFlag = () => {
           >
             <ChevronLeft size={16} /> Back to Flags
           </button>
-          <h2 className="text-3xl font-bold text-slate-900 mb-1">Create Feature Flag</h2>
-          <p className="text-slate-500 text-sm">Define a new flag, its default state, and targeting rules for specific user cohorts.</p>
+          <h2 className="text-3xl font-bold text-slate-900 mb-1">{isEditMode ? 'Edit Feature Flag' : 'Create Feature Flag'}</h2>
+          <p className="text-slate-500 text-sm">{isEditMode ? 'Modify configurations and targeting rules for this existing flag.' : 'Define a new flag, its default state, and targeting rules for specific user cohorts.'}</p>
         </div>
         <div className="flex items-center gap-3 mt-4 md:mt-0">
           <button 
@@ -79,15 +115,20 @@ const CreateFlag = () => {
           </button>
           <button 
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || fetching}
             className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2"
           >
-            {loading ? "Creating..." : "Create Flag"}
+            {loading ? "Saving..." : (isEditMode ? "Save Changes" : "Create Flag")}
           </button>
         </div>
       </div>
 
-      <div className="h-px bg-slate-200 w-full mb-8"></div>
+      {fetching && <div className="p-8 text-center text-slate-500">Loading flag details...</div>}
+
+      {!fetching && (
+        <>
+          <div className="h-px bg-slate-200 w-full mb-8"></div>
+
 
       {/* General Information */}
       <section className="space-y-4">
@@ -301,7 +342,8 @@ const CreateFlag = () => {
           </div>
         </div>
       </section>
-
+        </>
+      )}
     </div>
   );
 };

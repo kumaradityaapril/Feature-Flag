@@ -14,6 +14,7 @@ function App() {
         <Route path="flags" element={<FeatureFlags />} />
         <Route path="evaluator" element={<Evaluator />} />
         <Route path="create" element={<CreateFlag />} />
+        <Route path="edit/:id" element={<CreateFlag />} />
         <Route path="export" element={<Export />} />
       </Route>
     </Routes>

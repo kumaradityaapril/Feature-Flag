@@ -30,7 +30,6 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold text-slate-900 mb-1">System Dashboard</h2>
-          <p className="text-slate-600 text-sm">Welcome back, John. Here's what's happening in <span className="font-semibold underline decoration-slate-300 underline-offset-2">Production</span>.</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 shadow-sm">
