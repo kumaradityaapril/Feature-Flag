@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Download, Plus, MoreHorizontal, TerminalSquare, Clock, Trash2 } from 'lucide-react';
 import API from '../api/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const FeatureFlags = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [flags, setFlags] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(location.state?.search || '');
   const [envFilter, setEnvFilter] = useState('All');
 
   const filteredFlags = flags.filter(flag => {
