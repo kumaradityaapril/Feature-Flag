@@ -23,15 +23,6 @@ const Header = () => {
           <h1 className="text-xl font-semibold text-slate-800 tracking-tight">
             {getPageTitle(location.pathname)}
           </h1>
-          
-          {/* Environment Switcher */}
-          <div className="hidden md:flex items-center gap-2 pl-6 border-l border-slate-200">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">ENV</span>
-            <button className="flex items-center gap-1.5 text-sm font-medium text-slate-700 hover:text-slate-900 px-2 py-1 rounded bg-slate-50 border border-slate-200">
-              Production
-              <ChevronDown size={14} className="text-slate-400" />
-            </button>
-          </div>
         </div>
 
         <div className="flex items-center gap-4">
