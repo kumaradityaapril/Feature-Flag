@@ -17,6 +17,7 @@ func main() {
 	}
 
 	config.ConnectDB()
+	config.InitRedis()
 
 	r := router.SetupRouter()
 

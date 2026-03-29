@@ -1,21 +1,35 @@
 package services
 
 import (
+	"encoding/json"
+	"feature-flag/config"
 	"feature-flag/models"
 	"feature-flag/repository"
 	"hash/fnv"
 	"log"
 	"strings"
+	"time"
 )
 
-var flagCache = make(map[string]models.FeatureFlag)
+// Helper methods for Redis Cache
+func cacheFlag(flag models.FeatureFlag) {
+	data, err := json.Marshal(flag)
+	if err == nil {
+		// Cache expires after 5 minutes to ensure eventual consistency
+		config.RedisClient.Set(config.Ctx, "flag:"+flag.Name, data, 5*time.Minute)
+	}
+}
+
+func invalidateFlagCache(flagName string) {
+	config.RedisClient.Del(config.Ctx, "flag:"+flagName)
+}
 
 func CreateFeatureFlag(flag models.FeatureFlag) error {
 	err := repository.CreateFlag(flag)
 	if err != nil {
 		return err
 	}
-	flagCache[flag.Name] = flag
+	cacheFlag(flag)
 	return nil
 }
 
@@ -34,7 +48,7 @@ func GetFeatureFlagByID(id int) (models.FeatureFlag, error) {
 func DeleteFeatureFlag(id int) error {
 	flag, err := repository.GetFlagByID(id)
 	if err == nil {
-		delete(flagCache, flag.Name)
+		invalidateFlagCache(flag.Name)
 	}
 	return repository.DeleteFlag(id)
 }
@@ -44,21 +58,26 @@ func UpdateFeatureFlag(id int, flag models.FeatureFlag) error {
 	if err != nil {
 		return err
 	}
-	flagCache[flag.Name] = flag
+	cacheFlag(flag)
 	return nil
 }
 
 func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 
-	// Check cache first
-	flag, exists := flagCache[req.FlagName]
-	if !exists {
-		var err error
+	// Check Redis cache first
+	val, err := config.RedisClient.Get(config.Ctx, "flag:"+req.FlagName).Result()
+	var flag models.FeatureFlag
+	
+	if err == nil {
+		// Cache hit
+		json.Unmarshal([]byte(val), &flag)
+	} else {
+		// Cache miss
 		flag, err = repository.GetFlagByName(flagName)
 		if err != nil {
 			return false, err
 		}
-		flagCache[req.FlagName] = flag
+		cacheFlag(flag)
 	}
 
 	log.Println("Evaluating flag:", flag.Name)
