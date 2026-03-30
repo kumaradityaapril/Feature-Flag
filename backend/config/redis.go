@@ -14,11 +14,10 @@ var (
 	Ctx         = context.Background()
 )
 
-// InitRedis establishes a connection pool to the Redis server
 func InitRedis() {
 	redisHost := os.Getenv("REDIS_HOST")
 	if redisHost == "" {
-		redisHost = "localhost" // Fallback for local development
+		redisHost = "localhost" 
 	}
 
 	redisPort := os.Getenv("REDIS_PORT")
@@ -30,15 +29,15 @@ func InitRedis() {
 
 	RedisClient = redis.NewClient(&redis.Options{
 		Addr:     addr,
-		Password: "", // no password set by default
-		DB:       0,  // use default DB
+		Password: "", 
+		DB:       0,  
 	})
 
-	// Test the connection
 	pong, err := RedisClient.Ping(Ctx).Result()
 	if err != nil {
-		log.Fatalf("Failed to connect to Redis at %s: %v", addr, err)
+		log.Printf("Warning: Failed to connect to Redis at %s: %v. Caching will be disabled.", addr, err)
+		RedisClient = nil
+	} else {
+		log.Printf("Successfully connected to Redis at %s (response: %s)", addr, pong)
 	}
-
-	log.Printf("Successfully connected to Redis at %s (response: %s)", addr, pong)
 }

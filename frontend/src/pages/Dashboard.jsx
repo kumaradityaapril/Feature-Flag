@@ -26,7 +26,7 @@ const Dashboard = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
       
-      {/* Title Area */}
+      
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold text-slate-900 mb-1">System Dashboard</h2>
@@ -41,7 +41,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Welcome Banner */}
+      
       <div className="bg-[#f0f6fa] rounded-2xl p-8">
         <div className="max-w-3xl">
           <span className="inline-block px-3 py-1 bg-blue-100/50 text-blue-600 text-[10px] font-bold rounded-full mb-4 uppercase tracking-wider">New Feature</span>
@@ -60,7 +60,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Stats Overview */}
+      
       <div>
         <h3 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
           <ActivityIcon /> System Health & Overview
@@ -98,7 +98,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent Features */}
+    
       <div>
         <h3 className="text-lg font-bold text-slate-800 mb-1">Recently Created Flags</h3>
         <p className="text-sm text-slate-500 mb-5">Your latest feature toggles retrieved directly from the database.</p>
@@ -132,7 +132,7 @@ const Dashboard = () => {
             ))}
           </div>
           
-          {/* Deliberately avoiding 'View All Audit Logs' link to respect unsupported areas rule */}
+           
         </div>
       </div>
 

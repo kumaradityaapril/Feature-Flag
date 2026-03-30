@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"errors"
 	"feature-flag/config"
 	"feature-flag/models"
 	"feature-flag/repository"
@@ -12,6 +13,9 @@ import (
 )
 
 func cacheFlag(flag models.FeatureFlag) {
+	if config.RedisClient == nil {
+		return
+	}
 	data, err := json.Marshal(flag)
 	if err == nil {
 		
@@ -20,6 +24,9 @@ func cacheFlag(flag models.FeatureFlag) {
 }
 
 func invalidateFlagCache(flagName string) {
+	if config.RedisClient == nil {
+		return
+	}
 	config.RedisClient.Del(config.Ctx, "flag:"+flagName)
 }
 
@@ -64,7 +71,15 @@ func UpdateFeatureFlag(id int, flag models.FeatureFlag) error {
 func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 
 	
-	val, err := config.RedisClient.Get(config.Ctx, "flag:"+req.FlagName).Result()
+	var val string
+	var err error
+	
+	if config.RedisClient != nil {
+		val, err = config.RedisClient.Get(config.Ctx, "flag:"+req.FlagName).Result()
+	} else {
+		err = errors.New("redis disabled")
+	}
+	
 	var flag models.FeatureFlag
 	
 	if err == nil {

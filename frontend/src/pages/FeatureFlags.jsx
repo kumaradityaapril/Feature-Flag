@@ -52,7 +52,7 @@ const FeatureFlags = () => {
   const fetchFlags = async () => {
     try {
       const res = await API.get('/flags');
-      // Backend returns { data: [...] } based on standard struct, verify nested data
+      
       setFlags(res.data.data || res.data || []);
     } catch (err) {
       console.error(err);
