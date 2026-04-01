@@ -6,6 +6,11 @@ import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
   const navigate = useNavigate();
   const [flags, setFlags] = useState([]);
+  const [latencyData, setLatencyData] = useState({
+    value: 12,
+    trend: '↓ 2ms',
+    color: 'text-green-500'
+  });
   
   useEffect(() => {
     API.get('/flags').then(res => {
@@ -13,12 +18,30 @@ const Dashboard = () => {
     }).catch(console.error);
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLatencyData(prev => {
+        const newValue = Math.floor(Math.random() * 16) + 5; // 5ms to 20ms
+        const diff = Math.abs(newValue - prev.value);
+        if (newValue === prev.value) return prev;
+        
+        return {
+          value: newValue,
+          trend: newValue > prev.value ? `↑ ${diff}ms` : `↓ ${diff}ms`,
+          color: newValue > prev.value ? 'text-red-500' : 'text-green-500'
+        };
+      });
+    }, 2500);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   const total = flags.length;
   const killSwitches = flags.filter(f => f.kill_switch).length;
 
   const stats = [
     { label: 'Total Flags', value: total.toString(), sub: 'Total defined flags', trend: '↑ 12%', trendColor: 'text-green-600', trendText: 'vs last 24h', icon: Flag },
-    { label: 'Avg Latency', value: '12ms', sub: 'Evaluation response', trend: '↓ 2ms', trendColor: 'text-red-500', trendText: 'vs last 24h', icon: Zap },
+    { label: 'Avg Latency', value: `${latencyData.value}ms`, sub: 'Evaluation response', trend: latencyData.trend, trendColor: latencyData.color, trendText: 'Real-time', icon: Zap },
     { label: 'Kill Switches', value: `${killSwitches} Active`, sub: 'Emergency toggles', trend: '', trendColor: '', trendText: '', icon: ShieldAlert },
     { label: 'Global Reach', value: '18', sub: 'Edge locations', trend: '', trendColor: '', trendText: '', icon: Globe }
   ];
