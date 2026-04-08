@@ -17,10 +17,10 @@ func ConnectDB() {
 	pool, err := pgxpool.New(context.Background(), databaseUrl)
 
 	if err != nil {
-		log.Fatal("Unable to connect to database:", err)
+		log.Printf("Warning: Unable to connect to database: %v. Database-dependent features will fail.", err)
+	} else {
+		log.Println("Database connected successfully")
 	}
 
 	DB = pool
-
-	log.Println("Database connected successfully")
 }

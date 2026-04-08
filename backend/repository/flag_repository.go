@@ -152,7 +152,7 @@ func GetFlagByName(name string) (models.FeatureFlag, error) {
 }
 
 func GetFlagsByEnvironment(env string) ([]models.FeatureFlag, error) {
-	query := `SELECT id, name, enabled, environment, rollout_percentage, rules, kill_switch FROM feature_flags WHERE environment=$1`
+	query := `SELECT id, name, enabled, environment, rollout_percentage, rules, kill_switch, created_at FROM feature_flags WHERE environment=$1`
 
 	rows, err := config.DB.Query(context.Background(), query, env)
 	if err != nil {
@@ -174,6 +174,7 @@ func GetFlagsByEnvironment(env string) ([]models.FeatureFlag, error) {
 			&flag.RolloutPercentage,
 			&rulesBytes,
 			&flag.KillSwitch,
+			&flag.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
