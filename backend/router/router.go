@@ -27,6 +27,7 @@ func SetupRouter() *gin.Engine {
 	r.PUT("/flags/:id", handlers.UpdateFlag)
 	r.DELETE("/flags/:id", handlers.DeleteFlag)
 	r.POST("/evaluate", handlers.EvaluateFlag)
+	r.GET("/trends", handlers.GetEvaluationTrends)
 
 	return r
 }

@@ -152,3 +152,8 @@ func EvaluateFlag(c *gin.Context) {
 	log.Println("Evaluation result:", result)
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: gin.H{"enabled": result}})
 }
+
+func GetEvaluationTrends(c *gin.Context) {
+	trends := services.GetTrends()
+	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: trends})
+}

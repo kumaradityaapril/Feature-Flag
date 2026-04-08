@@ -95,6 +95,7 @@ func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 	}
 
 	log.Println("Evaluating flag:", flag.Name)
+	defer RecordEvaluation()
 
 	
 	if flag.KillSwitch {
