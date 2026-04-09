@@ -52,14 +52,19 @@ const Sidebar = () => {
           <span className="material-symbols-outlined text-sm">add</span>
           NEW FLAG
         </button>
-        <a className="flex items-center gap-3 px-4 py-3 text-[#b9c8de] hover:bg-[#2d3449]/30 transition-colors cursor-pointer">
+        <NavLink 
+          to="/docs"
+          className={({ isActive }) => 
+            `flex items-center gap-3 px-4 py-3 transition-all duration-200 ${
+              isActive 
+                ? 'bg-gradient-to-r from-[#00daf3]/10 to-transparent text-[#00daf3] border-r-2 border-[#00daf3]' 
+                : 'text-[#b9c8de] hover:bg-[#2d3449]/30'
+            }`
+          }
+        >
           <span className="material-symbols-outlined text-lg">menu_book</span>
           <span className="text-xs uppercase tracking-widest font-semibold font-label">Documentation</span>
-        </a>
-        <a className="flex items-center gap-3 px-4 py-3 text-[#b9c8de] hover:bg-[#2d3449]/30 transition-colors cursor-pointer">
-          <span className="material-symbols-outlined text-lg">contact_support</span>
-          <span className="text-xs uppercase tracking-widest font-semibold font-label">Support</span>
-        </a>
+        </NavLink>
       </div>
     </aside>
   );
