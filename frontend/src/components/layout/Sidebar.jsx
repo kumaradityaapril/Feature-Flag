@@ -8,8 +8,7 @@ const Sidebar = () => {
     { name: 'Dashboard', path: '/', icon: 'dashboard' },
     { name: 'Flags', path: '/flags', icon: 'flag' },
     { name: 'Evaluator', path: '/evaluator', icon: 'terminal' },
-    { name: 'Environments', path: '#', icon: 'layers' },
-    { name: 'Settings', path: '#', icon: 'settings' },
+    { name: 'Environments', path: '/environments', icon: 'layers' },
   ];
 
   return (

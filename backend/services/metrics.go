@@ -12,6 +12,19 @@ var (
 	lastSec       int64
 )
 
+func GetEPS() float64 {
+	trendsMu.Lock()
+	defer trendsMu.Unlock()
+	syncTime()
+
+	// Rolling average of the last 3 seconds
+	sum := 0
+	for i := 17; i < 20; i++ {
+		sum += trendsData[i]
+	}
+	return float64(sum) / 3.0
+}
+
 func init() {
 	lastSec = time.Now().Unix()
 	rand.Seed(time.Now().UnixNano())

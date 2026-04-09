@@ -5,6 +5,7 @@ import FeatureFlags from './pages/FeatureFlags';
 import Evaluator from './pages/Evaluator';
 import CreateFlag from './pages/CreateFlag';
 import Export from './pages/Export';
+import Environments from './pages/Environments';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="create" element={<CreateFlag />} />
         <Route path="edit/:id" element={<CreateFlag />} />
         <Route path="export" element={<Export />} />
+        <Route path="environments" element={<Environments />} />
       </Route>
     </Routes>
   );

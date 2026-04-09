@@ -16,9 +16,6 @@ const Header = () => {
             <NavLink to="/evaluator" className={({ isActive }) => `transition-all duration-200 py-5 ${isActive ? 'text-[#00daf3] font-bold border-b-2 border-[#00daf3]' : 'hover:text-[#00daf3]'}`}>
               Evaluator
             </NavLink>
-            <span className="cursor-pointer hover:text-[#00daf3] transition-all duration-200 py-5">
-              Settings
-            </span>
           </nav>
         </div>
       </div>
@@ -30,13 +27,6 @@ const Header = () => {
         <button className="bg-gradient-to-br from-error-container to-on-error py-1.5 px-4 rounded-lg text-xs font-bold text-on-error-container hover:opacity-90 transition-all active:scale-95">
           KILL SWITCH
         </button>
-        <div className="flex items-center gap-3 ml-2 pl-4 border-l border-[#2d3449]/50">
-          <span className="material-symbols-outlined text-[#b9c8de] cursor-pointer hover:text-primary transition-colors">notifications</span>
-          <span className="material-symbols-outlined text-[#b9c8de] cursor-pointer hover:text-primary transition-colors">settings</span>
-          <div className="w-8 h-8 rounded-full border border-primary/30 flex items-center justify-center bg-surface-container-high text-primary font-bold text-sm">
-            A
-          </div>
-        </div>
       </div>
     </header>
   );

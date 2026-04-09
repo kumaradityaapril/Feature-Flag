@@ -5,10 +5,10 @@ import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
   const navigate = useNavigate();
   const [flags, setFlags] = useState([]);
-  const [latencyData, setLatencyData] = useState({
-    value: 14,
-    status: 'Within SLA',
-    colorClass: 'text-primary bg-primary/20'
+  const [epsData, setEpsData] = useState({
+    value: 0,
+    status: 'Idle',
+    colorClass: 'text-tertiary bg-surface-container-highest'
   });
 
 
@@ -21,18 +21,22 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLatencyData(prev => {
-        const newValue = Math.floor(Math.random() * 16) + 5; // 5ms to 20ms
-        const isAlert = newValue > 15;
-        
-        return {
-          value: newValue,
-          status: isAlert ? 'ELEVATED' : 'WITHIN SLA',
-          colorClass: isAlert ? 'text-error bg-error/20' : 'text-on-primary-container bg-primary/20'
-        };
-      });
-    }, 2500);
+    const fetchEPS = () => {
+      API.get('/trends').then(res => {
+        if (res.data && res.data.data) {
+          const val = res.data.data.eps || 0;
+          const isActive = val > 0;
+          setEpsData({
+            value: Math.round(val * 10) / 10,
+            status: isActive ? 'ACTIVE' : 'IDLE',
+            colorClass: isActive ? 'text-primary bg-primary/10 border border-primary/20' : 'text-tertiary bg-surface-container-high'
+          });
+        }
+      }).catch(() => {});
+    };
+    
+    fetchEPS();
+    const interval = setInterval(fetchEPS, 2000);
     return () => clearInterval(interval);
   }, []);
 
@@ -82,10 +86,18 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="bg-gradient-to-br from-surface-container-low to-primary/5 p-5 rounded-xl border border-outline-variant/5 hover:border-primary/20 transition-all group">
-          <p className="text-tertiary text-[10px] uppercase tracking-widest font-bold mb-1">Avg Latency</p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-tertiary text-[10px] uppercase tracking-widest font-bold">Live Traffic</p>
+            {epsData.value > 0 && (
+              <span className="flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+            )}
+          </div>
           <div className="flex items-end justify-between">
-            <h2 className="text-3xl font-headline font-bold text-primary">{latencyData.value}ms</h2>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${latencyData.colorClass}`}>{latencyData.status}</span>
+            <h2 className="text-3xl font-headline font-bold text-primary">{epsData.value} <span className="text-xs font-medium text-tertiary ml-0.5">EPS</span></h2>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${epsData.colorClass}`}>{epsData.status}</span>
           </div>
         </div>
       </div>

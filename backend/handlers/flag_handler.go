@@ -155,5 +155,9 @@ func EvaluateFlag(c *gin.Context) {
 
 func GetEvaluationTrends(c *gin.Context) {
 	trends := services.GetTrends()
-	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: trends})
+	eps := services.GetEPS()
+	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: gin.H{
+		"trends": trends,
+		"eps":    eps,
+	}})
 }
