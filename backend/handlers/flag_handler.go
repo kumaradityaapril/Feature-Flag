@@ -161,3 +161,21 @@ func GetEvaluationTrends(c *gin.Context) {
 		"eps":    eps,
 	}})
 }
+
+func ToggleGlobalKillSwitch(c *gin.Context) {
+	var body struct {
+		Enabled bool `json:"enabled"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, models.APIResponse{Success: false, Error: err.Error()})
+		return
+	}
+	services.SetGlobalKillSwitch(body.Enabled)
+	log.Println("Global Kill Switch set to:", body.Enabled)
+	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: gin.H{"enabled": body.Enabled}})
+}
+
+func GetGlobalKillSwitchStatus(c *gin.Context) {
+	status := services.GetGlobalKillSwitch()
+	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: gin.H{"enabled": status}})
+}

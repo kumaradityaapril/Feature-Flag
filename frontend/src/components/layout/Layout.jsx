@@ -2,13 +2,45 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import API from '../../api/api';
 
 const Layout = () => {
+  const [isGlobalKillSwitchActive, setIsGlobalKillSwitchActive] = React.useState(false);
+
+  const fetchKillSwitchStatus = async () => {
+    try {
+      const res = await API.get('/settings/kill-switch');
+      setIsGlobalKillSwitchActive(res.data.data.enabled);
+    } catch (err) {
+      console.error('Failed to fetch global kill switch status:', err);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchKillSwitchStatus();
+    const interval = setInterval(fetchKillSwitchStatus, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleToggleKillSwitch = async (newState) => {
+    try {
+      await API.post('/settings/kill-switch', { enabled: newState });
+      setIsGlobalKillSwitchActive(newState);
+    } catch (err) {
+      console.error('Failed to toggle global kill switch:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <Header />
+      {isGlobalKillSwitchActive && (
+        <div className="fixed top-0 left-0 right-0 z-[60] bg-error text-on-error py-1 text-center text-[10px] font-bold uppercase tracking-widest animate-pulse shadow-[0_0_20px_rgba(255,84,73,0.5)]">
+          🚨 Selective Global Kill Switch Active - Targeted Features Disabled 🚨
+        </div>
+      )}
+      <Header isActive={isGlobalKillSwitchActive} onToggle={handleToggleKillSwitch} />
       <Sidebar />
-      <main className="lg:pl-64 pt-16 min-h-screen">
+      <main className={`lg:pl-64 min-h-screen transition-all ${isGlobalKillSwitchActive ? 'pt-20' : 'pt-16'}`}>
         <div className="max-w-[1400px] mx-auto p-6 md:p-8 space-y-8">
           <Outlet />
         </div>

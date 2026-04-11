@@ -26,6 +26,8 @@ func SetupRouter() *gin.Engine {
 	r.DELETE("/flags/:id", handlers.DeleteFlag)
 	r.POST("/evaluate", handlers.EvaluateFlag)
 	r.GET("/trends", handlers.GetEvaluationTrends)
+	r.GET("/settings/kill-switch", handlers.GetGlobalKillSwitchStatus)
+	r.POST("/settings/kill-switch", handlers.ToggleGlobalKillSwitch)
 
 	return r
 }

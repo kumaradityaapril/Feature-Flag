@@ -13,18 +13,6 @@ const Sidebar = () => {
 
   return (
     <aside className="fixed left-0 top-16 bottom-0 w-64 flex-col py-6 bg-[#131b2e] border-r border-[#2d3449]/20 overflow-y-auto hidden lg:flex">
-      <div className="px-6 mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-[#2d3449] flex items-center justify-center border border-primary/20">
-            <span className="material-symbols-outlined text-primary">terminal</span>
-          </div>
-          <div>
-            <h3 className="text-on-surface font-bold text-sm">Active Project</h3>
-            <p className="text-[10px] text-tertiary uppercase tracking-widest font-semibold">V1.0.0</p>
-          </div>
-        </div>
-      </div>
-
       <nav className="flex-1 space-y-1 px-4">
         {navItems.map((item) => (
           <NavLink

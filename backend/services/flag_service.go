@@ -9,8 +9,26 @@ import (
 	"hash/fnv"
 	"log"
 	"strings"
+	"sync"
 	"time"
 )
+
+var (
+	globalStatsMu     sync.Mutex
+	GlobalKillSwitch bool
+)
+
+func SetGlobalKillSwitch(state bool) {
+	globalStatsMu.Lock()
+	defer globalStatsMu.Unlock()
+	GlobalKillSwitch = state
+}
+
+func GetGlobalKillSwitch() bool {
+	globalStatsMu.Lock()
+	defer globalStatsMu.Unlock()
+	return GlobalKillSwitch
+}
 
 func cacheFlag(flag models.FeatureFlag) {
 	if config.RedisClient == nil {
@@ -97,13 +115,14 @@ func EvaluateFlag(flagName string, req models.EvaluationRequest) (bool, error) {
 	log.Println("Evaluating flag:", flag.Name)
 	defer RecordEvaluation()
 
-	
-	if flag.KillSwitch {
-		log.Println("Kill switch enabled")
+	// 0. System-Wide Kill Switch check (Selective)
+	// Only disables flags that have their individual KillSwitch property activated.
+	if GetGlobalKillSwitch() && flag.KillSwitch {
+		log.Println("Global Kill Switch ACTIVE - Selective Override Engaged for:", flag.Name)
 		return false, nil
 	}
 
-	
+	// 1. Normal Evaluation continues below...
 	if normalizeEnv(flag.Environment) != normalizeEnv(req.Environment) {
 		log.Println("Environment mismatch")
 		return false, nil
