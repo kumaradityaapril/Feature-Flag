@@ -15,6 +15,26 @@ var (
 )
 
 func InitRedis() {
+	redisURL := os.Getenv("REDIS_URL")
+	
+	if redisURL != "" {
+		opts, err := redis.ParseURL(redisURL)
+		if err != nil {
+			log.Printf("Warning: Failed to parse REDIS_URL: %v", err)
+			return
+		}
+		RedisClient = redis.NewClient(opts)
+		addr := opts.Addr
+		pong, err := RedisClient.Ping(Ctx).Result()
+		if err != nil {
+			log.Printf("Warning: Failed to connect to Redis at %s: %v. Caching will be disabled.", addr, err)
+			RedisClient = nil
+		} else {
+			log.Printf("Successfully connected to Redis at %s (response: %s)", addr, pong)
+		}
+		return
+	}
+
 	redisHost := os.Getenv("REDIS_HOST")
 	if redisHost == "" {
 		redisHost = "localhost" 
