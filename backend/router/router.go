@@ -16,6 +16,7 @@ func SetupRouter() *gin.Engine {
 	allowedOrigins := []string{
 		"http://localhost:5173",
 		"http://localhost:3000",
+		"https://feature-flag-e8xezao5u-kumaradityaaprils-projects.vercel.app",
 	}
 
 	if extra := os.Getenv("ALLOWED_ORIGINS"); extra != "" {
