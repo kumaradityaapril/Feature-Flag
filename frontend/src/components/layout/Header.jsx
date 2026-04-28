@@ -31,10 +31,6 @@ const Header = ({ isActive, onToggle }) => {
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 bg-[#131b2e] px-3 py-1.5 rounded-lg border border-[#2d3449]/30">
-          <span className={`material-symbols-outlined text-xs ${isActive ? 'text-error animate-ping' : 'text-primary'}`}>circle</span>
-          <span className="text-xs font-mono font-semibold tracking-wider text-secondary">Production</span>
-        </div>
         <button 
           onClick={handleKillSwitchClick}
           className={`py-1.5 px-4 rounded-lg text-xs font-bold transition-all active:scale-95 flex items-center gap-2 ${
