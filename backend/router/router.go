@@ -16,7 +16,8 @@ func SetupRouter() *gin.Engine {
 	allowedOrigins := []string{
 		"http://localhost:5173",
 		"http://localhost:3000",
-		"https://feature-flag-e8xezao5u-kumaradityaaprils-projects.vercel.app",
+		"https://feature-flag-git-main-kumaradityaaprils-projects.vercel.app",
+		"https://feature-flag-kumaradityaaprils-projects.vercel.app",
 	}
 
 	if extra := os.Getenv("ALLOWED_ORIGINS"); extra != "" {
@@ -28,7 +29,7 @@ func SetupRouter() *gin.Engine {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     allowedOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"},
 		AllowCredentials: true,
 	}))
 
