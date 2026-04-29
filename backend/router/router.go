@@ -18,6 +18,7 @@ func SetupRouter() *gin.Engine {
 		"http://localhost:3000",
 		"https://feature-flag-git-main-kumaradityaaprils-projects.vercel.app",
 		"https://feature-flag-kumaradityaaprils-projects.vercel.app",
+		"https://feature-flag-theta.vercel.app",
 	}
 
 	if extra := os.Getenv("ALLOWED_ORIGINS"); extra != "" {
