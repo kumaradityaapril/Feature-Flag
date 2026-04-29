@@ -19,7 +19,10 @@ const Environments = () => {
         setLoading(false);
       }
     };
+    
     fetchFlags();
+    const interval = setInterval(fetchFlags, 5000); // Fetch every 5 seconds
+    return () => clearInterval(interval);
   }, []);
 
   const getEnvStats = (envName) => {
