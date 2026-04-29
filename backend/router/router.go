@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,10 +27,10 @@ func SetupRouter() *gin.Engine {
 	}
 
 	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
-		c.Writer.Header().Set("X-CORS-Status", "Permissive")
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+		c.Header("Access-Control-Allow-Headers", "*")
+		c.Header("X-Backend-CORS", "Permissive")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
@@ -42,8 +41,10 @@ func SetupRouter() *gin.Engine {
 	})
 
 	r.GET("/health", func(c *gin.Context) {
+		c.Header("X-Health-Check", "Success")
 		c.JSON(200, gin.H{
 			"message": "Feature Flag Service is running",
+			"status":  "healthy",
 		})
 	})
 
