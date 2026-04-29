@@ -52,12 +52,7 @@ const Dashboard = () => {
           <h1 className="text-3xl font-headline font-bold tracking-tight text-on-surface">Flags Overview</h1>
           <p className="text-tertiary text-sm mt-1">Manage and monitor feature rollout across all clusters.</p>
         </div>
-        <div className="flex gap-3">
-          <div className="flex bg-surface-container-low p-1 rounded-lg border border-outline-variant/10">
-            <button className="px-4 py-1.5 rounded-md text-xs font-semibold bg-surface-container-highest text-primary">Overview</button>
-            <button className="px-4 py-1.5 rounded-md text-xs font-semibold text-tertiary hover:text-on-surface">Audit Logs</button>
-          </div>
-        </div>
+
       </div>
 
       {/* Metrics Bento Grid */}
