@@ -26,7 +26,15 @@ const Environments = () => {
   }, []);
 
   const getEnvStats = (envName) => {
-    const envFlags = flags.filter(f => (f.environment || '').toLowerCase() === envName.toLowerCase());
+    const envFlags = flags.filter(f => {
+      const dbEnv = (f.environment || '').toLowerCase();
+      const targetEnv = envName.toLowerCase();
+      
+      if (targetEnv === 'development') return dbEnv === 'dev' || dbEnv === 'development';
+      if (targetEnv === 'production') return dbEnv === 'prod' || dbEnv === 'production';
+      return dbEnv === targetEnv;
+    });
+
     return {
       total: envFlags.length,
       active: envFlags.filter(f => f.enabled).length,
