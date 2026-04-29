@@ -8,7 +8,7 @@ const FeatureFlags = () => {
   const [flags, setFlags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(location.state?.search || '');
-  const [envFilter, setEnvFilter] = useState('All');
+  const [envFilter, setEnvFilter] = useState(location.state?.env || 'All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
